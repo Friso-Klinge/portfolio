@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         return $dbHandler;
     }
 
-    $email = filter_input(INPUT_POST, "email");
+    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_SPECIAL_CHARS);
     $pass = filter_input(INPUT_POST, "pass");
 
     try{
@@ -25,10 +25,18 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     if(count($users) == 1){
         if(password_verify($pass, $users[0]["password"])){
             $_SESSION["role"] = $users[0]["role"];
+            header("location: index.php");
+        } else if ($users[0]["password"] == "unset"){
+            try{
+                $stmt = DBConnect() -> prepare("UPDATE `user` SET `password` = '" . password_hash($pass, PASSWORD_BCRYPT) . "' where `email` = '$email'");
+                $stmt -> execute();
+            } catch (Exception $E) {
+                die($E);    
+            }
+            $_SESSION["role"] = $users[0]["role"];
         }
+        header("location: adminPortal.php");
     }
-
-    
 }
 ?>
 
@@ -44,11 +52,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     <div>
     <h2>Login</h2>
         <form action="<?php echo $_SERVER["PHP_SELF"]?>" method="post">
-            <label for="email">Email</label>
-            <input type="text" name="email" id="email">
+            <input type="text" name="email" id="email" placeholder="Email">
             <br>
-            <label for="pass">Password</label>
-            <input type="text" name="pass" id="pass">
+            <input type="text" name="pass" id="pass" placeholder="Password">
             <br>
             <input type="submit" value="Login">
         </form>

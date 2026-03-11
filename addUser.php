@@ -6,7 +6,7 @@ try{
                                                     VALUES (:email, :pass, :role_)");
 
         $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_SPECIAL_CHARS);
-        $pass = password_hash(filter_input(INPUT_POST, "pass", FILTER_SANITIZE_SPECIAL_CHARS), PASSWORD_BCRYPT);
+        $pass = "unset";
         $role = filter_input(INPUT_POST, "role", FILTER_SANITIZE_SPECIAL_CHARS);
 
         $stmt -> bindParam("email", $email, PDO::PARAM_STR);
